@@ -1,0 +1,12 @@
+{
+  "role": "central",
+  "target": "microbit",
+  "targetVersion": "9.1.1",
+  "pxtVersion": "13.0.1",
+  "includesV2": true,
+  "protocolSha256": "b7e5f38e44374ca4f89228b7783a6a206296450556ca14edab30215795d753d6",
+  "roleSha256": "268d20c199a54b04bb95538c0e01c772b08032e6f6fad5efbc743b5cee4968e5",
+  "makecodeSource": "microbit/makecode/central.ts",
+  "makecodeSha256": "ce1b9fd28f9ebe2e4dcbc18c96e8806515ecec0f5de656a6e05e105e53dcf4a4",
+  "hexSha256": "172e3a0de808f10f27b7e884717ad090442bf61b47b5ed5c06e8d6134d149677"
+}

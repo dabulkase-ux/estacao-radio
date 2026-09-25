@@ -1,0 +1,12 @@
+{
+  "role": "estacao",
+  "target": "microbit",
+  "targetVersion": "9.1.1",
+  "pxtVersion": "13.0.1",
+  "includesV2": true,
+  "protocolSha256": "b7e5f38e44374ca4f89228b7783a6a206296450556ca14edab30215795d753d6",
+  "roleSha256": "10c1babb93ee950c0864847c18551ac776d3b28afee12d0c0bb4db7f53a74385",
+  "makecodeSource": "microbit/makecode/estacao.ts",
+  "makecodeSha256": "77a05d1af32273c67961a0c40e8a6be5111b0f228ce27ea965ec721ea763ee5c",
+  "hexSha256": "40db3d1903fc8ca0770b06dc8d0d3f23160851519ee8ccfdd080e572b33c86c9"
+}

@@ -1,0 +1,12 @@
+{
+  "role": "ponte",
+  "target": "microbit",
+  "targetVersion": "9.1.1",
+  "pxtVersion": "13.0.1",
+  "includesV2": true,
+  "protocolSha256": "b7e5f38e44374ca4f89228b7783a6a206296450556ca14edab30215795d753d6",
+  "roleSha256": "1061d0029ef8aecdaac257aa5da8ebadb1111a0af02e504c49f53acf91d4d202",
+  "makecodeSource": "microbit/makecode/ponte.ts",
+  "makecodeSha256": "122757fb3184c036a8008d1650a44fd777fa1e0cde41654da68935af90b5b4d6",
+  "hexSha256": "abecfac90d57026e7d61113b7a91e49e32938cb3abcd5f962d94d7624b492d6e"
+}
