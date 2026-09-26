@@ -9,6 +9,53 @@ pacotes, justificativas, limitações, testes e checklist de validação física
 
 ## Site público independente do PC
 
+### Windows: iniciar com dois cliques
+
+Na primeira configuração:
+
+1. Clone/baixe o projeto e instale Python **3.10+**, habilitando **Add Python to PATH**.
+2. Copie `.env.example` para `.env` na raiz do projeto.
+3. No `.env`, substitua `COLOQUE_SEU_TOKEN_AQUI` pelo token privado já configurado
+   no Render. A URL do backend atual já vem preenchida no exemplo.
+4. Conecte a Central micro:bit por USB e dê dois cliques em **`iniciar.bat`**.
+
+O launcher cria `.venv` se necessário, instala dependências ausentes ou com versão
+diferente das fixadas em `requirements.txt`, carrega a configuração e executa
+`app_radio.py --gateway-only` com o Python da `.venv`. A primeira instalação
+precisa de internet; nas seguintes, dependências corretas não são reinstaladas.
+O pip fornecido pelo Python é suficiente, sem atualização forçada a cada execução.
+Erros deixam a janela aberta com instruções. Para parar, use **Ctrl+C**.
+
+Após iniciar as threads do gateway, `iniciar.bat` solicita uma única abertura do
+frontend público no navegador padrão do Windows. Reconexões não abrem novas abas.
+Isso confirma a inicialização do processo, não a conexão à Central/Render; a página
+pode mostrar offline enquanto aguarda dados. Se o navegador falhar, o gateway
+continua normalmente e a URL aparece para abertura manual. `iniciar-local.bat`
+mantém seu comportamento, sem abrir navegador automaticamente.
+
+Validação do launcher: 11 testes, incluindo execução real dos `.bat` no
+Windows em pasta com espaços, além de instalação limpa isolada e segunda execução
+sem reinstalar. `pip check` passou nesse ambiente. Os testes usam um app substituto
+e configuração fictícia, sem conectar ao hardware/backend nem usar seu `.env`.
+
+No uso diário: **conecte a Central → abra `iniciar.bat` → acesse
+[o frontend público](https://estacao-radio-gules.vercel.app/)**.
+Backend atual: `https://estacao-radio-backend.onrender.com`.
+
+**`.env NÃO deve ser commitado. Nunca compartilhe seu token.** `.env` e `.venv/`
+já estão ignorados pelo Git. Não coloque o token nos `.bat` nem no frontend.
+Os launchers usam o `.env` da pasta do projeto, com prioridade sobre variáveis
+homônimas do terminal. Espaços, comentários e valores entre aspas são aceitos;
+use aspas simples ao redor de valores com caracteres especiais. Não há expansão
+de `${VAR}` nem execução de comandos. Apenas variáveis `MICROSERIAL_*` são carregadas.
+
+Opcional: **`iniciar-local.bat`** usa o mesmo setup e `.env`, mas executa o modo
+normal, com interface em `http://127.0.0.1:5000` **e publicação remota**.
+O comando direto `python app_radio.py` continua inalterado e não carrega `.env`
+automaticamente; permanece disponível para uso manual exclusivamente local.
+Se mover a pasta e a `.venv` deixar de funcionar, recrie apenas o ambiente virtual
+(ambientes Python não são portáveis); preserve o `.env` privado.
+
 O frontend pode ficar na **Vercel** e o backend mínimo no **Render**:
 
 ```text

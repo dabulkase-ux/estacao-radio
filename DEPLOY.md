@@ -22,7 +22,8 @@ Revise `git status` e `git diff`, faça o commit e o push quando decidir publica
 Render/Vercel usarão o código da branch selecionada em
 `https://github.com/dabulkase-ux/estacao-radio`.
 Não inclua arquivos `.env` ou tokens no commit. `.env.example` contém somente
-nomes/valores ilustrativos e **não é carregado automaticamente** pelos programas.
+nomes/valores ilustrativos. Copiado para `.env`, é carregado pelos launchers Windows;
+o comando direto `python app_radio.py` continua usando o ambiente do terminal.
 
 ## 2. Criar o segredo do gateway
 
@@ -95,6 +96,23 @@ A leitura é pública. CORS restringe o uso por navegadores, mas a proteção da
 é o token Bearer verificado no servidor, não CORS.
 
 ## 6. Executar o gateway no PC
+
+**Uso diário no Windows:** conecte a Central e dê dois cliques em `iniciar.bat`.
+Na primeira vez, tenha Python 3.10+ no PATH, copie `.env.example` para `.env` e
+preencha o token privado igual ao `GATEWAY_TOKEN` do Render. O launcher prepara
+`.venv` e as dependências automaticamente, sem imprimir o segredo. `.env NÃO
+deve ser commitado`. O arquivo tem prioridade sobre variáveis do terminal quando
+usado pelo launcher; o modo manual abaixo continua disponível sem mudanças.
+
+Endereços atuais informados pelo responsável pelo projeto:
+
+- Frontend: https://estacao-radio-gules.vercel.app/
+- Backend: https://estacao-radio-backend.onrender.com
+
+`iniciar-local.bat` mantém também a interface local; ambos usam o mesmo setup.
+Se uma instalação de dependências falhar, corrija internet/permissões e execute
+novamente: versões faltantes serão verificadas outra vez. Não é preciso colocar
+nenhum token no script ou definir `$env:` para usar os launchers.
 
 Instalação inicial (PowerShell):
 

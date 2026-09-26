@@ -190,7 +190,7 @@ def ler_microbit(stop_event: Optional[threading.Event] = None) -> None:
             stop_event.wait(TEMPO_RECONEXAO)
 
 
-def main() -> None:
+def main(on_started=None) -> None:
 
     from gateway_remote import configurar_publicador
 
@@ -248,6 +248,8 @@ def main() -> None:
     try:
         if opcoes.gateway_only:
             logger.info("Gateway remoto ativo; nenhum frontend é hospedado por este processo")
+            if on_started is not None:
+                on_started()
             while not stop.wait(1):
                 pass
         else:
