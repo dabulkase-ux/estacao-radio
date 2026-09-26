@@ -7,6 +7,42 @@ deduplicação e até **12 Pontes consecutivas**.
 O [relatório de auditoria](AUDITORIA.md) contém diagnóstico, inventário, formato de
 pacotes, justificativas, limitações, testes e checklist de validação física.
 
+## Site público independente do PC
+
+O frontend pode ficar na **Vercel** e o backend mínimo no **Render**:
+
+```text
+micro:bits → Central → USB → Python no PC → HTTPS → Render (RAM)
+                                                      ↓ Socket.IO
+                                               site estático Vercel
+```
+
+O site abre sem o PC e mostra offline. O backend guarda somente o estado atual,
+sem banco, login ou histórico; reiniciar o processo pode apagar as estações.
+O gateway reutiliza a descoberta serial, parser e estado existentes. Não há
+alterações no protocolo/firmware. `transport: "serial"` identifica a origem;
+`bluetooth` está apenas reservado, sem implementação BLE.
+
+**[Passo a passo de deploy, variáveis e limitações → DEPLOY.md](DEPLOY.md)**
+
+No PC (PowerShell), depois de configurar o backend:
+
+```powershell
+$env:MICROSERIAL_BACKEND_URL = "https://SEU-BACKEND.onrender.com"
+$env:MICROSERIAL_GATEWAY_TOKEN = "SEU-TOKEN-SECRETO"
+python app_radio.py
+```
+
+Esse comando mantém a interface local e publica o estado remoto. Para atuar
+somente como gateway, sem servidor local: `python app_radio.py --gateway-only`.
+Sem essas duas variáveis, `python app_radio.py` continua exclusivamente local.
+Não configure o token na Vercel: ela recebe apenas `RADIO_BACKEND_URL`, uma URL pública.
+
+A página pública é somente leitura; o botão PING continua na interface **local**.
+A Central fica offline após 10 s sem gateway; estações expiram após o timeout
+existente (5 s por padrão sem sinal válido). O Render gratuito pode dormir;
+isso não impede que o HTML na Vercel abra e mostre offline.
+
 ## Opção 1 — usuário comum: gravar o HEX pronto
 
 Os arquivos abaixo foram compilados com o MakeCode oficial
@@ -75,9 +111,16 @@ Personalizar ID/nome na cópia colada no editor é suficiente para gravar uma no
 Use Python 3.10+ no Windows, a partir desta pasta:
 
 ```powershell
+git clone https://github.com/dabulkase-ux/estacao-radio.git
+cd estacao-radio
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
 python app_radio.py
 ```
+
+Se já clonou o projeto, basta ativar o ambiente e executar os dois últimos comandos.
+Se o PowerShell impedir a ativação, use `.\.venv\Scripts\python.exe` em vez de `python`.
 
 Abra `http://127.0.0.1:5000`. O servidor permanece vinculado ao localhost.
 A página recebe dados em tempo real e o botão **Testar comunicação** envia um
@@ -162,8 +205,9 @@ Os testes JavaScript usam Node **24+**; a simulação precisa de
 ```powershell
 node --disable-warning=ExperimentalWarning tests/rede_sim.js
 node tests/frontend_test.js
+node tests/frontend_online_test.js
 python -m unittest discover -s tests -v
-python -m compileall -q app_radio.py parser.py protocolo_serial.py radio.py serial_manager.py
+python -m compileall -q app_radio.py parser.py protocolo_serial.py radio.py serial_manager.py gateway_remote.py backend_online.py online_wsgi.py
 ```
 
 Para compilar os firmwares com o alvo oficial MakeCode, dentro desta pasta:

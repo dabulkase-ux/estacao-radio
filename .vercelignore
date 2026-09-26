@@ -1,0 +1,7 @@
+.env
+.env.*
+.venv/
+.makecode-check/
+__pycache__/
+microbit/
+tests/

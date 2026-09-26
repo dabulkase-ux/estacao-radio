@@ -1,0 +1,9 @@
+{
+  "framework": null,
+  "buildCommand": "node tools/build_frontend.js",
+  "outputDirectory": "dist",
+  "installCommand": "echo Static frontend - no npm dependencies",
+  "headers": [
+    {"source": "/", "headers": [{"key": "Cache-Control", "value": "no-cache"}]}
+  ]
+}

@@ -547,8 +547,10 @@
             ></div>
 
             <span id="centralStatus">
-                Verificando central...
+                Central desconectada
             </span>
+
+            <span id="centralTransport">Conexão: USB Serial</span>
 
         </div>
 
@@ -635,17 +637,44 @@
 
 <script>
 
-    const socket = io();
+    const backendUrl = ""; // PUBLIC_BACKEND_URL
+    const publicMode = false;
+    const socket = typeof io === "function"
+        ? io(backendUrl || undefined, {timeout: 5000, reconnectionDelayMax: 10000})
+        : {on() {}, connected: false};
     const resultadosPing = new Map();
+    let ultimasEstacoes = {};
+    let ultimaAtualizacao = Date.now();
+    let revisao = 0;
+    let servidorOffline = false;
+
+    function marcarOffline() {
+        if (!servidorOffline) revisao++;
+        servidorOffline = true;
+        atualizarCentral({connected: false});
+        atualizarEstacoes(Object.fromEntries(Object.entries(ultimasEstacoes).map(
+            ([id, station]) => [id, {...station, connected: false}]
+        )));
+        lastUpdate.textContent = "Sem conexão com o servidor";
+    }
+
+    function aplicarDados(dados) {
+        revisao++;
+        servidorOffline = false;
+        ultimaAtualizacao = Date.now();
+        atualizarCentral(dados);
+        atualizarEstacoes(dados.stations || {});
+        lastUpdate.textContent = "Atualizado agora";
+    }
 
     socket.on("disconnect", () => {
-        atualizarCentral({connected: false});
-        lastUpdate.textContent = "Sem conexão com o servidor";
+        marcarOffline();
     });
+    socket.on("connect_error", marcarOffline);
 
     document.addEventListener("click", (evento) => {
         const botao = evento.target.closest("button[data-ping]");
-        if (!botao) return;
+        if (!botao || publicMode) return;
         const id = botao.dataset.ping;
         if (resultadosPing.get(id) === "Testando...") return;
         resultadosPing.set(id, "Testando...");
@@ -725,18 +754,7 @@
         "radio_data",
         (dados) => {
 
-            atualizarCentral(
-                dados
-            );
-
-
-            atualizarEstacoes(
-                dados.stations || {}
-            );
-
-
-            lastUpdate.textContent =
-                "Atualizado agora";
+            aplicarDados(dados);
 
         }
     );
@@ -745,6 +763,10 @@
     function atualizarCentral(
         dados
     ) {
+        if (dados.transport) {
+            document.getElementById("centralTransport").textContent =
+                "Conexão: " + (dados.transport === "bluetooth" ? "Bluetooth" : "USB Serial");
+        }
 
         if (dados.connected) {
 
@@ -772,6 +794,7 @@
     function atualizarEstacoes(
         stations
     ) {
+        ultimasEstacoes = stations;
 
         const lista =
             Object.values(
@@ -931,6 +954,7 @@
             <article class="station">
 
                 <button type="button" data-ping="${escaparHTML(station.id)}"
+                    ${publicMode ? "hidden" : ""}
                     ${resultadosPing.get(station.id) === "Testando..." ? "disabled" : ""}>Testar comunicação</button>
                 <span role="status">${escaparHTML(resultadosPing.get(station.id) || "")}</span>
 
@@ -1096,11 +1120,14 @@
 
     async function carregarDados() {
 
+        const inicio = revisao;
+
         try {
 
             const resposta =
                 await fetch(
-                    "/api/data"
+                    backendUrl + "/api/data",
+                    {cache: "no-store", ...(typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function" ? {signal: AbortSignal.timeout(5000)} : {})}
                 );
 
 
@@ -1115,14 +1142,8 @@
                 await resposta.json();
 
 
-            atualizarCentral(
-                dados
-            );
-
-
-            atualizarEstacoes(
-                dados.stations || {}
-            );
+            // Uma resposta HTTP antiga não deve sobrescrever Socket.IO mais recente.
+            if (inicio === revisao) aplicarDados(dados);
 
         }
 
@@ -1139,6 +1160,14 @@
 
 
     carregarDados();
+
+    if (publicMode) {
+        // Também cobre backend congelado/CDN Socket.IO indisponível.
+        setInterval(() => {
+            if (Date.now() - ultimaAtualizacao > 8000) marcarOffline();
+            if (!socket.connected) carregarDados();
+        }, 2000);
+    }
 
 </script>
 

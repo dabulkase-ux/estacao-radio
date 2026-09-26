@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import argparse
 import threading
 import time
 from typing import Optional
@@ -191,6 +192,20 @@ def ler_microbit(stop_event: Optional[threading.Event] = None) -> None:
 
 def main() -> None:
 
+    from gateway_remote import configurar_publicador
+
+    argumentos = argparse.ArgumentParser(description="MicroSerial: interface local e gateway remoto opcional")
+    argumentos.add_argument("--gateway-only", action="store_true", help="Ler serial e publicar sem iniciar o servidor local")
+    opcoes = argumentos.parse_args()
+    publicador = configurar_publicador()
+    if opcoes.gateway_only and publicador is None:
+        argumentos.error("--gateway-only exige MICROSERIAL_BACKEND_URL e MICROSERIAL_GATEWAY_TOKEN")
+    stop = threading.Event()
+    thread_publicador = None
+    if publicador is not None:
+        thread_publicador = threading.Thread(target=publicador.executar, args=(stop,), daemon=True, name="remote-publisher")
+        thread_publicador.start()
+
     logger.info(
         "========================================"
     )
@@ -215,6 +230,7 @@ def main() -> None:
 
     threading.Thread(
         target=ler_microbit,
+        kwargs={"stop_event": stop},
         daemon=True,
         name="serial-reader",
     ).start()
@@ -223,23 +239,29 @@ def main() -> None:
         target=monitorar_estacoes,
         kwargs={
             "enviar_dados": enviar_dados,
+            "stop_event": stop,
         },
         daemon=True,
         name="station-monitor",
     ).start()
 
-    logger.info(
-        "Servidor iniciado em "
-        "http://127.0.0.1:5000"
-    )
-
-    socketio.run(
-        app,
-        host="127.0.0.1",
-        port=5000,
-        debug=False,
-        allow_unsafe_werkzeug=True,
-    )
+    try:
+        if opcoes.gateway_only:
+            logger.info("Gateway remoto ativo; nenhum frontend é hospedado por este processo")
+            while not stop.wait(1):
+                pass
+        else:
+            logger.info("Servidor iniciado em http://127.0.0.1:5000")
+            socketio.run(
+                app, host="127.0.0.1", port=5000, debug=False,
+                allow_unsafe_werkzeug=True,
+            )
+    except KeyboardInterrupt:
+        pass
+    finally:
+        stop.set()
+        if thread_publicador is not None:
+            thread_publicador.join(timeout=6)
 
 
 if __name__ == "__main__":

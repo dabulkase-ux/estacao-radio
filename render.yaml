@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: estacao-radio-backend
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-backend.txt
+    startCommand: gunicorn --worker-class gthread --workers 1 --threads 40 --bind 0.0.0.0:$PORT online_wsgi:app
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.7
+      - key: GATEWAY_TOKEN
+        sync: false
+      - key: FRONTEND_ORIGINS
+        sync: false
+      - key: MICROSERIAL_STATION_TIMEOUT
+        value: "5"

@@ -15,6 +15,7 @@ lock_dados = threading.RLock()
 
 dados: dict[str, Any] = {
     "connected": False,
+    "transport": "serial",
     "central_port": None,
     "last_known_port": None,
     "communication_status": "disconnected",

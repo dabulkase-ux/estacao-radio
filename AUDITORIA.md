@@ -1,5 +1,70 @@
 # Auditoria integrada — MicroSerial
 
+## Atualização: publicação online do estado (26/09/2026)
+
+Esta seção complementa a auditoria histórica abaixo. O usuário informou que o
+fluxo físico Estação → Central → USB → Python já funciona. Nesta etapa nenhum
+fonte, protocolo ou artefato em `microbit/` foi alterado, nem os testes anteriores.
+
+A execução interrompida deixou 18 arquivos novos/modificados com o publicador
+remoto, backend em RAM, frontend público, configurações Render/Vercel e testes.
+A retomada conferiu `git status`, estatísticas e diff antes de editar, revisou
+esses arquivos, executou a validação e completou a documentação.
+
+Arquitetura final: parser/serial/estado existentes → `gateway_remote.py` → POST
+HTTPS autenticado a cada aproximadamente 1 s → `backend_online.py` no Render →
+Socket.IO → HTML estático na Vercel. A página também consulta `/api/data` como
+fallback e abre offline quando o backend não responde. O PC pode executar apenas
+o gateway com `--gateway-only`, ou manter a interface local existente.
+
+O backend mantém somente o snapshot atual em RAM, com limite de 64 estações e
+64 KiB por publicação. Não há banco, histórico online, login ou BLE. O histórico
+local preexistente foi preservado e não é transmitido. `transport: "serial"`
+identifica a origem; `bluetooth` é somente um valor reservado para expansão.
+
+A publicação inclui a idade do último sinal: retransmitir um snapshot não renova
+artificialmente a presença da Estação. O timeout existente é 5 s por padrão sem
+sinal válido (heartbeat ou dados); o gateway expira após 10 s, tornando Central
+e estações offline. O monitor emite o estado a cada segundo. Após reinício do
+backend, a próxima publicação reconstrói o estado. Há novas tentativas automáticas
+sem fila de histórico; a leitura serial não espera a rede.
+
+Escrita exige token Bearer de pelo menos 32 caracteres ASCII, configurado somente
+no PC e backend. Redirecionamentos HTTP não encaminham esse segredo. Leitura é
+pública, com origens explícitas para o navegador. Não há escrita via Socket.IO;
+PING permanece na interface local. A revisão encontrou apenas exemplos e um
+token de teste identificado, nenhum segredo real nos arquivos desta alteração.
+
+Na retomada foram corrigidos dois detalhes: o watchdog do frontend não invalida
+repetidamente uma consulta HTTP lenta enquanto já está offline, e o fallback
+funciona em navegadores sem `AbortSignal.timeout`. O campo interno `last_seen`
+agora é removido da resposta também quando a Central está offline.
+
+Validação concluída:
+
+- 22 testes Python aprovados: 11 anteriores intactos e 11 online, cobrindo parser,
+  CENTRAL_ONLINE, HEARTBEAT, SOM 42→51, autenticação, expiração, reinício,
+  reconexão, monitor e payloads inválidos.
+- Publicador com HTTP real em loopback e Socket.IO com long-polling HTTP real
+  aprovados. Reinício/reconexão também têm testes com estado/relógio controlados.
+- Frontend local e público aprovados em DOM simulado, incluindo backend/CDN
+  indisponível, atualização, desconexão e recuperação com resposta HTTP lenta.
+- 16 cenários TypeScript do rádio aprovados sem modificar os testes/firmwares.
+- Build estático, compilação de sintaxe Python, `node --check` e `git diff --check`
+  aprovados. `dist/` é saída gerada ignorada pelo Git.
+- `pip install --dry-run -r requirements-backend.txt` confirmou as dependências
+  locais; Gunicorn é condicionado a Linux. `pip check` no Python global apontou
+  dependências ausentes/incompatíveis de `personal-jarvis`, alheio a este projeto.
+  Não houve alteração desse pacote nem instalação limpa em `.venv` nesta validação.
+
+Não foram feitos deploy, commit, push, ensaio físico, teste visual em navegador/
+celular ou execução do Gunicorn Linux. TLS/CORS e WebSocket nos provedores,
+sleep/cold start, desconexão real do PC e recuperação precisam do ensaio após
+deploy. O plano Free do Render pode dormir; o HTML na Vercel permanece independente.
+Consulte [DEPLOY.md](DEPLOY.md) para comandos, variáveis, limites e roteiro manual.
+
+As seções seguintes descrevem a auditoria e validação anteriores do rádio.
+
 Atualização da distribuição: os fontes oficiais continuam em `microbit/`. O gerador
 `tools/gerar_makecode.js` produz `microbit/makecode/central.ts`, `estacao.ts` e
 `ponte.ts`, cada um autocontido. O build oficial foi novamente executado nos três
