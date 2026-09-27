@@ -138,6 +138,7 @@ let MUDANCA_SOM = 3 // Escala 0..255: suprime pequenas oscilações/repetições
 let ultimoSomEnviado = -1
 let ultimoEnvioSom = 0
 let proximaLeituraSom = 0
+let picoSom = -1 // Máximo capturado desde o último envio/comparação sem mudança.
 let INTERVALO_HEARTBEAT = 1000
 let TIMEOUT_COMUNICACAO = 8000
 let ultimaConfirmacao = 0
@@ -182,16 +183,22 @@ basic.forever(function () {
     if (configuracaoValida) {
         if (Rede.venceu(proximaLeituraSom)) {
             let valor = input.soundLevel()
+            picoSom = Math.max(picoSom, valor)
             proximaLeituraSom = agora + 20
-            if (Rede.venceu(proximoSom) && (ultimoSomEnviado < 0 || Math.abs(valor - ultimoSomEnviado) >= MUDANCA_SOM || Rede.decorrido(ultimoEnvioSom) >= REFRESH_SOM)) {
+            if (Rede.venceu(proximoSom) && (ultimoSomEnviado < 0 || Math.abs(picoSom - ultimoSomEnviado) >= MUDANCA_SOM || Rede.decorrido(ultimoEnvioSom) >= REFRESH_SOM)) {
                 let som = pins.createBuffer(1)
-                som[0] = valor
+                som[0] = picoSom
                 if (Rede.enviar(Rede.pacote(Rede.S, ID_ESTACAO, Rede.novoToken(), som))) {
-                    ultimoSomEnviado = valor
+                    ultimoSomEnviado = picoSom
                     ultimoEnvioSom = agora
+                    picoSom = -1
                 }
-                // Sem fila de amostras na Estação: a próxima tentativa lê o valor atual.
+                // Fila cheia: conserva o pico, mas respeita o mesmo limite de tentativas.
                 proximoSom = agora + INTERVALO_SOM + randint(0, 20)
+            } else if (Rede.venceu(proximoSom)) {
+                // Pico já representado (delta < 3): não o prende até o refresh.
+                // A próxima leitura pode informar a queda ou capturar outro evento.
+                picoSom = -1
             }
         }
         if (aguardandoAck && Rede.venceu(prazoAck)) {

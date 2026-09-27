@@ -230,3 +230,60 @@ Nenhum `.env` foi lido/exposto, nenhum token real aparece nos benchmarks; só to
 fictícios de teste. Launcher, `.bat`, configuração privada e dependências funcionais
 foram preservados. Sem banco, histórico online, BLE ou login. Sem ensaio físico,
 deploy ou validação de internet pública nesta etapa.
+
+## Correção de picos curtos — 27/09/2026
+
+Confirmada **perda de pico já capturado entre oportunidades de transmissão** na
+Estação da v0.0.3 (fonte `aae05ec`). A leitura ocorria aproximadamente a cada 30 ms
+no modelo do runtime, mas somente o valor lido na oportunidade de envio era usado.
+Um pulso de 30/60/100/150 ms inteiramente dentro da espera de 200 ms podia ser lido
+e depois substituído pelo silêncio. Os quatro casos foram reproduzidos no fonte
+anterior pelo novo `node --disable-warning=ExperimentalWarning tests/som_picos.js`.
+
+Agora um único acumulador mantém o máximo das leituras. Na oportunidade de envio,
+a comparação >= 3/255 e o refresh >= 1000 ms usam esse máximo. Depois de enfileirar
+com sucesso, o acumulador é limpo: a próxima janela pode informar a queda. Se a
+fila recusar, conserva-se o pico para a próxima tentativa, ainda limitada a
+200 ms + jitter 0..20 ms. Não há fila de amostras nem aumento da taxa configurada.
+Se o máximo já estiver representado pelo último envio (delta < 3) e o refresh
+não venceu, descarta-se esse máximo sem transmitir. Isso evita prender um pico
+igual até o refresh e permite que a leitura seguinte informe a queda. Oscilações
+menores que 3 continuam intencionalmente suprimidas; o refresh periódico permanece.
+O espaçamento é controlado na entrada da fila: jitter/espera do transmissor podem
+variar o intervalo observado no ar, como já ocorria antes desta correção.
+
+Validação desta correção:
+
+- **Simulação:** 33 cenários novos: quatro durações em quatro fases, percursos com
+  1/8/12 pontes, ruído pequeno, delta exatamente 3, fila recusando envio, pico
+  repetido sem prender a queda e máximo entre várias leituras. Todos passaram.
+  Há também quatro reproduções da perda no firmware anterior. Os testes conferem
+  envio do pico à Central, retorno ao nível baixo e limite de enfileiramento.
+- **Regressão:** 40 testes Python (incluindo integração HTTP/Socket.IO loopback,
+  servidor lento e reconexão), três scripts frontend e 16 cenários de rádio
+  passaram, sem alterar expectativas antigas.
+- **Carga simulada:** 25 cenários existentes passaram. Com quatro estações e oito
+  pontes, variação a cada 40 ms e limite de envio de 200 ms: 180 pacotes SOM
+  transmitidos, 174 recebidos até o fim dos 10 s, fila máxima 13/24 e 5/5 PINGs.
+  O experimento não adotado de 100 ms continua saturando: fila 24/24 e 2/5 PINGs.
+  Portanto permanece o limite de 5 envios/s. Essas contagens não modelam colisões
+  físicas; pacotes ainda em trânsito ao encerrar também entram na diferença.
+- **Compilação real:** Central, Estação e Ponte passaram no compilador oficial
+  pxt-microbit 9.1.1 / pxt-core 13.0.1, produzindo HEX universal e runtime V2.
+  Fontes autocontidos foram conferidos com `node tools/gerar_makecode.js --check`.
+  Somente os artefatos da Estação mudaram; protocolo/Central/Pontes preservados.
+
+Regrave apenas as Estações com `microbit/firmware/estacao.hex` (QUARTO padrão),
+ou personalize ID/nome em `microbit/makecode/estacao.ts` e compile no MakeCode V2.
+Central e Pontes não precisam ser regravadas.
+
+**Limites:** isto corrige a perda local de um pico observado, não garante entrega
+fim a fim. Pulsos entre leituras podem não ser amostrados; rádio SOM continua sem
+ACK/retry, e internet lenta pode fazer o gateway coalescer um pico já recebido.
+Nenhuma latência física nem melhoria visual na internet pública foi medida nesta
+etapa. Para validar: use IDs únicos, compare palmas/pulsos curtos nos registros
+SOM da Central e na interface, primeiro direto e depois com pontes/várias estações;
+confira pico seguido de queda, PING e presença estáveis. Repita em várias fases
+em relação aos envios. Um vídeo com estímulo e tela ajuda a medir a experiência.
+Não foram alterados heartbeat, ACK, retries, TTL, deduplicação, parser, gateway,
+backend ou frontend. Nenhum segredo foi lido/exposto; sem commit/push/tag/deploy.
