@@ -450,8 +450,7 @@
                     #ff667c
                 );
 
-            transition:
-                width 0.25s ease;
+            /* Telemetria: sem animação de 250 ms sobre o valor mais recente. */
         }
 
         .sound-scale {
@@ -647,8 +646,13 @@
     let ultimaAtualizacao = Date.now();
     let revisao = 0;
     let servidorOffline = false;
+    let dadosPendentes = null;
+    let framePendente = false;
+    const diagnostico = typeof location !== "undefined" &&
+        new URLSearchParams(location.search).get("diagnostico") === "1";
 
     function marcarOffline() {
+        dadosPendentes = null;
         if (!servidorOffline) revisao++;
         servidorOffline = true;
         atualizarCentral({connected: false});
@@ -662,9 +666,23 @@
         revisao++;
         servidorOffline = false;
         ultimaAtualizacao = Date.now();
-        atualizarCentral(dados);
-        atualizarEstacoes(dados.stations || {});
-        lastUpdate.textContent = "Atualizado agora";
+        dadosPendentes = dados;
+        if (framePendente) return;
+        framePendente = true;
+        const inicioFrame = diagnostico ? performance.now() : 0;
+        const renderizar = () => {
+            framePendente = false;
+            const atual = dadosPendentes;
+            dadosPendentes = null;
+            if (!atual) return; // Desconexão invalida um frame online pendente.
+            atualizarCentral(atual);
+            atualizarEstacoes(atual.stations || {});
+            lastUpdate.textContent = "Atualizado agora";
+            if (diagnostico) console.debug("[LATENCIA] primeiro evento do frame -> DOM (ms)",
+                performance.now() - inicioFrame, "transporte", socket.io?.engine?.transport?.name || "HTTP");
+        };
+        if (typeof requestAnimationFrame === "function") requestAnimationFrame(renderizar);
+        else renderizar();
     }
 
     socket.on("disconnect", () => {

@@ -106,6 +106,7 @@ def criar_backend(token=None, origins=None, iniciar_monitor=True, estado=None):
 
     @app.post("/api/gateway/state")
     def receber():
+        inicio = time.perf_counter()
         esperado = ("Bearer " + token).encode()
         if not hmac.compare_digest(request.headers.get("Authorization", "").encode(), esperado):
             return {"error": "unauthorized"}, 401
@@ -114,6 +115,9 @@ def criar_backend(token=None, origins=None, iniciar_monitor=True, estado=None):
         except (ValueError, TypeError):
             return {"error": "invalid state"}, 400
         socketio.emit("radio_data", atual.obter())
+        if os.getenv("MICROSERIAL_LATENCY_DEBUG", "") == "1":
+            app.logger.warning("[LATENCIA] POST recebido -> emit=%.2f ms",
+                               (time.perf_counter() - inicio) * 1000)
         return "", 204
 
     @socketio.on("connect")

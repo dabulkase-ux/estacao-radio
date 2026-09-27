@@ -122,7 +122,7 @@ def processar_radio(
     # ========================================================
 
     if info.get("sound") is not None:
-        logger.info(
+        logger.debug(
             "Som recebido | estação=%s | som=%s | raw=%r",
             info.get("id"),
             info.get("sound"),

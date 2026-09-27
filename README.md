@@ -7,6 +7,11 @@ deduplicação e até **12 Pontes consecutivas**.
 O [relatório de auditoria](AUDITORIA.md) contém diagnóstico, inventário, formato de
 pacotes, justificativas, limitações, testes e checklist de validação física.
 
+O [relatório de latência](LATENCIA.md) compara a v0.0.2 com telemetria por mudança,
+gateway orientado a eventos e renderização por frame. Inclui benchmarks e roteiro
+físico. Para a melhoria do sensor, regrave somente as **Estações** com o novo HEX;
+Central/Pontes continuam compatíveis. Não houve deploy automático do frontend.
+
 ## Site público independente do PC
 
 ### Windows: iniciar com dois cliques
@@ -187,7 +192,10 @@ simple-websocket 1.1.0. A interface ainda carrega Socket.IO do CDN indicado no H
 
 ## Estado, intervalos e serial
 
-- Som: aproximadamente 500 ms + jitter; heartbeat: 1000 ms + jitter quando confirmado.
+- Som: por mudança de pelo menos 3/255, limitado a 200 ms + jitter de até 20 ms,
+  refresh de 1000 ms quando estável. A leitura tem prazo de 20 ms; o runtime V2
+  acrescenta 20 ms ao `forever` e o loop pausa 10 ms: na prática, cerca de 30 ms
+  por leitura sem outras cargas. Heartbeat: 1000 ms + jitter quando confirmado.
 - ACK: espera de 2500 ms, no máximo três tentativas por heartbeat.
 - Ícone de comunicação da Estação: offline após 8 s sem ACK.
 - PC: timeout padrão de Estação de 5 s sem dados válidos; esse estado comprova

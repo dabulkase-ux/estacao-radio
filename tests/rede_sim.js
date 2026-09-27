@@ -18,7 +18,7 @@ class Bytes extends Uint8Array {
     toHex() { return Buffer.from(this).toString('hex'); }
 }
 class Network {
-    constructor() { this.now = 0; this.nodes = []; this.edges = []; this.events = []; this.tx = []; this.drop = () => false; this.seed = 1234567; }
+    constructor(sources = {}) { this.sources = sources; this.now = 0; this.nodes = []; this.edges = []; this.events = []; this.tx = []; this.drop = () => false; this.seed = 1234567; }
     add(role, id = 'QUARTO', name = 'Quarto') {
         const n = {role, id, name, index: this.nodes.length, lines: [], loops: [], input: '', receiver: null, icon: null};
         this.nodes.push(n); this.boot(n); return n;
@@ -58,13 +58,14 @@ class Network {
             },
         };
         n.context = vm.createContext(context);
-        const role = fs.readFileSync(path.join(root, 'microbit', n.role + '.ts'), 'utf8')
+        const role = (this.sources[n.role] || fs.readFileSync(path.join(root, 'microbit', n.role + '.ts'), 'utf8'))
             .replace('let ID_ESTACAO = "QUARTO"', 'let ID_ESTACAO = ' + JSON.stringify(n.id))
             .replace('let NOME_ESTACAO = "Quarto"', 'let NOME_ESTACAO = ' + JSON.stringify(n.name));
-        vm.runInContext(compile(common + '\n' + role), n.context);
+        vm.runInContext(compile((this.sources.protocolo || common) + '\n' + role), n.context);
         n.tick = () => {
             for (const loop of n.loops) if (loop.due <= net.now) {
                 current = loop; loop.due = net.now; loop.f();
+                loop.due += net.sources.foreverDelay || 0;
                 loop.due = Math.max(loop.due, net.now + 1); current = null;
             }
         };
@@ -212,3 +213,6 @@ if (process.argv.includes('--fixture')) {
     central.input = 'PING|QUARTO|314\n'; net.run(3000);
     console.log(JSON.stringify(central.lines));
 } else console.log(passed + ' cenários aprovados (sem modelo físico de RF).');
+
+// Reuso do mesmo simulador nos benchmarks; nenhum cenário acima é substituído.
+module.exports = {Network, Bytes};

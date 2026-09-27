@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import argparse
 import threading
 import time
@@ -19,7 +20,7 @@ from config import (
     TIMEOUT_ESTACAO,
     MAX_MENSAGEM,
 )
-from estado import atualizar_central
+from estado import atualizar_central, mudanca_remota
 from monitor import monitorar_estacoes
 from radio import processar_radio as processar_mensagem
 from protocolo_serial import LinhasSerial, NomesFragmentados
@@ -66,6 +67,7 @@ def enviar_dados(
 
     from estado import obter_estado
 
+    mudanca_remota.set()
     estado = obter_estado()
 
     try:
@@ -107,9 +109,13 @@ def enviar_dados(
 # ============================================================
 
 def processar_radio(linha: str) -> bool:
+    inicio = time.perf_counter()
     if not processar_mensagem(linha):
         return False
     enviar_dados()
+    if os.getenv("MICROSERIAL_LATENCY_DEBUG", "") == "1":
+        logger.info("[LATENCIA] linha completa -> parser/notificacao/emit local=%.2f ms",
+                    (time.perf_counter() - inicio) * 1000)
     return True
 
 

@@ -1,0 +1,42 @@
+OK ida, volta, ACK e heartbeat com 0 Pontes
+OK ida, volta, ACK e heartbeat com 1 Pontes
+OK ida, volta, ACK e heartbeat com 8 Pontes
+OK ida, volta, ACK e heartbeat com 12 Pontes
+OK 13 Pontes excedem o limite e retornam timeout
+OK duas estações, nomes longos e isolamento dos ACKs
+OK duplicados e ciclo entre Pontes terminam
+OK ACK perdido: mesma operação com nova tentativa atravessa caches
+OK resposta PING perdida é recuperada na segunda tentativa
+OK reinício de Ponte e Estação recupera heartbeat e usa novo token
+OK pacotes inválidos, incompletos e tipos inesperados são descartados
+OK ACK antigo não confirma novo heartbeat; ACK refletido não vai ao PC
+OK cache expira, fila é limitada e TTL continua protegendo
+OK overflow uint32 é definido e nomes máximos cabem em 19 bytes
+OK serial parcial, comando inválido, ocupado e assinatura
+OK temporizadores continuam após overflow de millis
+16 cenários aprovados (sem modelo físico de RF).
+{"version":"v0.0.2","relays":0,"stations":1,"intervalo":500,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":19,"received":19,"filaMax":2,"p95_sensor_ms":560,"tx_total":53,"ping":5}
+{"version":"atual","relays":0,"stations":1,"intervalo":200,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":10,"received":10,"filaMax":2,"p95_sensor_ms":51,"tx_total":44,"ping":5}
+{"version":"v0.0.2","relays":0,"stations":4,"intervalo":500,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":75,"received":75,"filaMax":2,"p95_sensor_ms":546,"tx_total":177,"ping":5}
+{"version":"atual","relays":0,"stations":4,"intervalo":200,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":40,"received":40,"filaMax":3,"p95_sensor_ms":57,"tx_total":142,"ping":5}
+{"version":"v0.0.2","relays":1,"stations":1,"intervalo":500,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":19,"received":19,"filaMax":2,"p95_sensor_ms":569,"tx_total":106,"ping":5}
+{"version":"atual","relays":1,"stations":1,"intervalo":200,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":10,"received":10,"filaMax":2,"p95_sensor_ms":104,"tx_total":88,"ping":5}
+{"version":"v0.0.2","relays":1,"stations":4,"intervalo":500,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":75,"received":75,"filaMax":7,"p95_sensor_ms":563,"tx_total":354,"ping":5}
+{"version":"atual","relays":1,"stations":4,"intervalo":200,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":40,"received":40,"filaMax":7,"p95_sensor_ms":167,"tx_total":284,"ping":5}
+{"version":"v0.0.2","relays":8,"stations":1,"intervalo":500,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":19,"received":18,"filaMax":2,"p95_sensor_ms":737,"tx_total":469,"ping":5}
+{"version":"atual","relays":8,"stations":1,"intervalo":200,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":10,"received":10,"filaMax":2,"p95_sensor_ms":306,"tx_total":388,"ping":5}
+{"version":"v0.0.2","relays":8,"stations":4,"intervalo":500,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":76,"received":72,"filaMax":6,"p95_sensor_ms":818,"tx_total":1565,"ping":5}
+{"version":"atual","relays":8,"stations":4,"intervalo":200,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":40,"received":40,"filaMax":6,"p95_sensor_ms":431,"tx_total":1259,"ping":5}
+{"version":"v0.0.2","relays":12,"stations":1,"intervalo":500,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":19,"received":18,"filaMax":2,"p95_sensor_ms":815,"tx_total":662,"ping":5}
+{"version":"atual","relays":12,"stations":1,"intervalo":200,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":10,"received":10,"filaMax":2,"p95_sensor_ms":427,"tx_total":553,"ping":5}
+{"version":"v0.0.2","relays":12,"stations":4,"intervalo":500,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":76,"received":72,"filaMax":8,"p95_sensor_ms":973,"tx_total":2218,"ping":5}
+{"version":"atual","relays":12,"stations":4,"intervalo":200,"periodo":1000,"duplicatas":false,"constante":false,"perda":false,"sent":40,"received":40,"filaMax":6,"p95_sensor_ms":544,"tx_total":1812,"ping":5}
+{"version":"v0.0.2","relays":8,"stations":4,"intervalo":500,"periodo":1000,"duplicatas":false,"constante":true,"perda":false,"sent":76,"received":72,"filaMax":6,"p95_sensor_ms":0,"tx_total":1565,"ping":5}
+{"version":"atual","relays":8,"stations":4,"intervalo":200,"periodo":1000,"duplicatas":false,"constante":true,"perda":false,"sent":40,"received":40,"filaMax":5,"p95_sensor_ms":0,"tx_total":1257,"ping":5}
+{"version":"atual","relays":8,"stations":4,"intervalo":200,"periodo":1000,"duplicatas":false,"constante":false,"perda":true,"sent":40,"received":11,"filaMax":6,"p95_sensor_ms":391,"tx_total":1127,"ping":5}
+{"version":"atual","relays":0,"stations":4,"intervalo":200,"periodo":40,"duplicatas":false,"constante":false,"perda":false,"sent":177,"received":177,"filaMax":3,"p95_sensor_ms":63,"tx_total":279,"ping":5}
+{"version":"atual","relays":1,"stations":4,"intervalo":200,"periodo":40,"duplicatas":false,"constante":false,"perda":false,"sent":180,"received":179,"filaMax":13,"p95_sensor_ms":207,"tx_total":563,"ping":5}
+{"version":"atual","relays":8,"stations":4,"intervalo":200,"periodo":40,"duplicatas":false,"constante":false,"perda":false,"sent":180,"received":174,"filaMax":13,"p95_sensor_ms":555,"tx_total":2469,"ping":5}
+{"version":"atual","relays":12,"stations":4,"intervalo":200,"periodo":40,"duplicatas":false,"constante":false,"perda":false,"sent":176,"received":170,"filaMax":11,"p95_sensor_ms":588,"tx_total":3474,"ping":5}
+{"version":"atual","relays":8,"stations":4,"intervalo":100,"periodo":40,"duplicatas":false,"constante":false,"perda":false,"sent":331,"received":259,"filaMax":24,"p95_sensor_ms":1567,"tx_total":2891,"ping":2}
+{"version":"atual","relays":8,"stations":4,"intervalo":200,"periodo":40,"duplicatas":true,"constante":false,"perda":false,"sent":177,"received":177,"filaMax":13,"p95_sensor_ms":243,"tx_total":2491,"ping":5}

@@ -7,7 +7,7 @@ Os arquivos estão preparados para você revisar e publicar.
 
 | Parte | Execução | Função |
 |---|---|---|
-| Gateway | PC, `python app_radio.py` | Reutiliza serial/parser/estado e envia snapshot HTTPS aproximadamente a cada segundo |
+| Gateway | PC, `python app_radio.py` | Reutiliza serial/parser/estado; publica por evento, limitado a 10 POST/s no total, com refresh ocioso de 1 s |
 | Backend | Render, Flask/Socket.IO + Gunicorn | Um processo, estado atual em RAM, autenticação da escrita e expiração |
 | Frontend | Vercel, HTML estático | Mesmo visual do Flask, recebe estado por Socket.IO; fallback HTTP e offline |
 
@@ -143,6 +143,10 @@ Se necessário, defina `MICROSERIAL_PORT=COM5` como antes.
 
 O gateway transmite somente estado atual, sem backlog. Falhas de internet não
 bloqueiam a leitura serial; novas tentativas usam esperas de 2, 4, 8 e até 10 s.
+Há uma única requisição em andamento. Eventos intermediários se fundem em uma
+notificação; após 100 ms da resposta, publica o estado mais recente se houve mudança.
+A conexão HTTP/TLS é reaproveitada quando o servidor permite. Não há redirect
+automático nem configuração de proxy HTTP corporativo no cliente `http.client`.
 Após o backend voltar, o snapshot seguinte reconstrói seu estado.
 
 ## 7. Demonstrar

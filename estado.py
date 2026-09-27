@@ -11,6 +11,8 @@ from config import HISTORICO_LIMITE
 
 
 lock_dados = threading.RLock()
+# Uma notificação, não uma fila de amostras. O publicador lê o estado mais recente.
+mudanca_remota = threading.Event()
 
 
 dados: dict[str, Any] = {

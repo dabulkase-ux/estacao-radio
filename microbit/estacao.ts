@@ -1,7 +1,12 @@
 // MICRO:BIT V2 — ESTAÇÃO. Adicione também protocolo.ts ao MakeCode.
 let ID_ESTACAO = "QUARTO" // Único; 2..8 ASCII A-Z/0-9/_/-.
 let NOME_ESTACAO = "Quarto" // Até 24 unidades UTF-16, fragmentado sem truncar.
-let INTERVALO_SOM = 500
+let INTERVALO_SOM = 200 // Limite: até 5 envios/s, mais jitter; não é taxa de heartbeat.
+let REFRESH_SOM = 1000
+let MUDANCA_SOM = 3 // Escala 0..255: suprime pequenas oscilações/repetições.
+let ultimoSomEnviado = -1
+let ultimoEnvioSom = 0
+let proximaLeituraSom = 0
 let INTERVALO_HEARTBEAT = 1000
 let TIMEOUT_COMUNICACAO = 8000
 let ultimaConfirmacao = 0
@@ -11,7 +16,7 @@ let tokenHeartbeat = 0
 let tentativaHeartbeat = 0
 let prazoAck = 0
 let proximoHeartbeat = control.millis() + randint(0, 1000)
-let proximoSom = control.millis() + randint(0, 500)
+let proximoSom = control.millis() + randint(0, INTERVALO_SOM)
 let proximaIdentificacao = control.millis() + randint(0, 1000)
 let parteNome = 0
 let tokenNome = 0
@@ -44,11 +49,19 @@ function enviarHeartbeat() {
 basic.forever(function () {
     let agora = control.millis()
     if (configuracaoValida) {
-        if (Rede.venceu(proximoSom)) {
-            let som = pins.createBuffer(1)
-            som[0] = input.soundLevel()
-            Rede.enviar(Rede.pacote(Rede.S, ID_ESTACAO, Rede.novoToken(), som))
-            proximoSom = agora + INTERVALO_SOM + randint(0, 40)
+        if (Rede.venceu(proximaLeituraSom)) {
+            let valor = input.soundLevel()
+            proximaLeituraSom = agora + 20
+            if (Rede.venceu(proximoSom) && (ultimoSomEnviado < 0 || Math.abs(valor - ultimoSomEnviado) >= MUDANCA_SOM || Rede.decorrido(ultimoEnvioSom) >= REFRESH_SOM)) {
+                let som = pins.createBuffer(1)
+                som[0] = valor
+                if (Rede.enviar(Rede.pacote(Rede.S, ID_ESTACAO, Rede.novoToken(), som))) {
+                    ultimoSomEnviado = valor
+                    ultimoEnvioSom = agora
+                }
+                // Sem fila de amostras na Estação: a próxima tentativa lê o valor atual.
+                proximoSom = agora + INTERVALO_SOM + randint(0, 20)
+            }
         }
         if (aguardandoAck && Rede.venceu(prazoAck)) {
             if (tentativaHeartbeat < 2) {

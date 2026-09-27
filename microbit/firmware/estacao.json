@@ -5,8 +5,8 @@
   "pxtVersion": "13.0.1",
   "includesV2": true,
   "protocolSha256": "b7e5f38e44374ca4f89228b7783a6a206296450556ca14edab30215795d753d6",
-  "roleSha256": "10c1babb93ee950c0864847c18551ac776d3b28afee12d0c0bb4db7f53a74385",
+  "roleSha256": "1f035b62af40be807ef501e0b2ef38149c80d7617dae79b44bfcfeb7ec224666",
   "makecodeSource": "microbit/makecode/estacao.ts",
-  "makecodeSha256": "77a05d1af32273c67961a0c40e8a6be5111b0f228ce27ea965ec721ea763ee5c",
-  "hexSha256": "40db3d1903fc8ca0770b06dc8d0d3f23160851519ee8ccfdd080e572b33c86c9"
+  "makecodeSha256": "40622d1ed0525bc9d28d8404f54eaf7f017c8e45d1023700c5f34182f70341d7",
+  "hexSha256": "c001ed2c1a2855f99d6b5050258b921c862f9b2c324d772f46c34402afa0219d"
 }

@@ -1,5 +1,15 @@
 # Auditoria integrada — MicroSerial
 
+## Atualização de latência após o checkpoint v0.0.2
+
+A etapa atual está detalhada em [LATENCIA.md](LATENCIA.md), com resultados brutos
+em `benchmarks/`. SOM agora usa mudança de 3/255, intervalo mínimo de 200 ms e
+refresh de 1 s; o gateway publica por evento com conexão reutilizável, e o frontend
+agrupa renderização por frame. Protocolo V1, TTL, cache, ACK, heartbeat e baud foram
+preservados. Somente o firmware da Estação mudou; os três papéis foram recompilados
+com MakeCode oficial. As descrições de 500 ms/POST periódico nas seções históricas
+abaixo correspondem ao estado anterior, não à configuração atual.
+
 ## Atualização: publicação online do estado (26/09/2026)
 
 Esta seção complementa a auditoria histórica abaixo. O usuário informou que o
