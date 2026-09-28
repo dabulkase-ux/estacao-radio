@@ -5,10 +5,10 @@ const path = require('node:path');
 const root = path.join(__dirname, '..');
 const roles = ['central', 'estacao', 'ponte'];
 
-function generateRole(role, check = false) {
+function composeRole(role, sources = {}) {
     if (!roles.includes(role)) throw new Error('Papel inválido: ' + role);
-    const protocol = fs.readFileSync(path.join(root, 'microbit/protocolo.ts'));
-    const main = fs.readFileSync(path.join(root, 'microbit', role + '.ts'));
+    const protocol = sources.protocol || fs.readFileSync(path.join(root, 'microbit/protocolo.ts'));
+    const main = sources.main || fs.readFileSync(path.join(root, 'microbit', role + '.ts'));
     const header = '// ARQUIVO GERADO AUTOMATICAMENTE — NÃO MANTER CÓPIAS MANUAIS.\n' +
         '// Fontes oficiais: microbit/protocolo.ts + microbit/' + role + '.ts\n' +
         '// Regenerar: node tools/gerar_makecode.js\n' +
@@ -23,6 +23,10 @@ function generateRole(role, check = false) {
         : '\n// ==================== PAPEL: ' + role.toUpperCase() + ' ====================\n';
     // Buffer.concat preserva os bytes exatos de ambos os fontes, inclusive CRLF.
     const combined = Buffer.concat([Buffer.from(header), protocol, Buffer.from(banner), main]);
+    return {protocol, main, combined};
+}
+function generateRole(role, check = false) {
+    const {protocol, main, combined} = composeRole(role);
     const output = path.join(root, 'microbit/makecode', role + '.ts');
     if (check) {
         if (!fs.existsSync(output) || !fs.readFileSync(output).equals(combined)) {
@@ -35,7 +39,7 @@ function generateRole(role, check = false) {
     return {protocol, main, combined, output};
 }
 
-module.exports = {generateRole};
+module.exports = {generateRole, composeRole};
 if (require.main === module) {
     if (process.argv.slice(2).some(arg => arg !== '--check')) throw new Error('Uso: node tools/gerar_makecode.js [--check]');
     const check = process.argv.includes('--check');

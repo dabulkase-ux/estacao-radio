@@ -4,6 +4,33 @@ Rede para **micro:bit V2**, com uma Central, várias Estações e Pontes genéri
 O protocolo V1 usa grupo **42**, potência **7**, pacotes binários de até **19 bytes**,
 deduplicação e até **12 Pontes consecutivas**.
 
+## v0.0.4 — Configurador e gravador de firmware
+
+Para criar Estações com IDs diferentes ou redes separadas, use a GUI Python:
+**[preparação e passo a passo do configurador → CONFIGURADOR.md](CONFIGURADOR.md)**.
+
+Após instalar Python com Tcl/Tk e preparar Node/PXT conforme o guia:
+
+```powershell
+python -m configurador
+```
+
+Conecte o micro:bit V2 → escolha **Central / Estação / Ponte** → escolha a **Rede**
+(42 para a atual) → informe ID/nome se for Estação → **Gerar firmware .HEX** ou
+selecione o aparelho e use **Gerar e gravar**. Também funciona sem USB para apenas
+salvar o HEX. A gravação exige identificação do dispositivo e confirmação; não
+escolhe silenciosamente entre vários aparelhos nem sobrescreve HEXs locais.
+
+**Gerar firmware .HEX** pede onde salvar e mantém o arquivo permanente.
+**Gerar e gravar** compila em diretório temporário do sistema e grava diretamente,
+sem pedir destino nem deixar um HEX permanente no computador. Os temporários da
+operação são limpos após sucesso ou falha; caches e arquivos permanentes são preservados.
+
+O configurador preserva os fontes e a v0.0.3.1: os três firmwares padrão gerados
+são idênticos aos atuais. Não requer `.env` nem token. Ainda não é um `.exe`
+standalone; Node/PXT e seus pacotes precisam estar preparados. As opções manuais
+abaixo continuam disponíveis.
+
 O [relatório de auditoria](AUDITORIA.md) contém diagnóstico, inventário, formato de
 pacotes, justificativas, limitações, testes e checklist de validação física.
 
@@ -283,7 +310,7 @@ O manifesto registra os hashes do protocolo, do papel, do arquivo autocontido
 efetivamente compilado e do HEX. Não use `--hw mbcodal`: o alvo
 micro:bit já compila as variantes oficiais automaticamente.
 
-Para gerar outra Estação pela CLI, edite `microbit/estacao.ts` e execute novamente
-o build da Estação; guarde o HEX com o ID correspondente antes da próxima configuração.
+Para gerar outra Estação sem editar fontes, use `python -m configurador`.
+O build tradicional continua disponível para manutenção do código principal.
 Os HEXs entregues foram compilados, mas o alcance, as colisões, a carga máxima,
 o consumo de RAM e a estabilidade prolongada ainda exigem ensaio nos aparelhos.

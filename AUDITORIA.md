@@ -1,5 +1,25 @@
 # Auditoria integrada — MicroSerial
 
+## v0.0.4 — Configurador, preservando v0.0.3.1
+
+O working tree estava limpo ao retomar esta etapa. Foram auditados protocolo,
+papéis, cópias geradas, manifestos/HEX, gerador, compilador PXT e testes. O grupo
+42 estava fixo em `Rede.iniciar`; ID QUARTO/nome Quarto no fonte da Estação.
+Nenhum fonte ou artefato de `microbit/` foi alterado. A nova ferramenta configura
+somente cópias temporárias por AST, expondo papel/rede e ID/nome da Estação.
+Constantes de rádio, SOM/peak-hold, ACK e filas permanecem internas.
+
+O grupo 0–255 foi confirmado no runtime oficial. Uma Central por grupo resolve
+a separação de redes de rádio, inclusive Pontes, sem novo campo nos pacotes.
+O backend/gateway continua com uma rede por instância; não foi implementada
+agregação online de várias Centrais. A geração padrão foi comparada byte a byte
+com os HEXs do checkpoint. Detecção/flash usam evidências DAPLink V2 e revalidação
+antes da cópia; boot não é inferido do retorno da escrita.
+
+Arquitetura, dependências, testes, limitações e roteiro de hardware estão em
+[CONFIGURADOR.md](CONFIGURADOR.md). O usuário confirmou validação física da
+latência na v0.0.3.1; nesta etapa não foi realizado novo ensaio físico.
+
 ## Atualização de latência após o checkpoint v0.0.2
 
 A etapa atual está detalhada em [LATENCIA.md](LATENCIA.md), com resultados brutos
