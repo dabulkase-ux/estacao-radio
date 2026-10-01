@@ -1,5 +1,17 @@
 # MicroSerial — Central Micro:bit Radio
 
+## Distribuição Windows candidata — v0.0.4.1
+
+O configurador agora pode ser distribuído em uma pasta com **Dualkase MicroSerial
+Configurator.exe** e runtimes privados. O usuário final não instala Python, Node
+ou npm; a compilação funciona offline. Copie a pasta inteira, não apenas o EXE.
+A GUI e a gravação USB continuam iguais. Esta build ainda requer validação física
+e em outro Windows limpo antes de uma release.
+
+Consulte [DISTRIBUICAO_WINDOWS.md](DISTRIBUICAO_WINDOWS.md) para gerar a distribuição
+com `python tools/build_windows.py`, testes, dependências apenas de desenvolvimento
+e roteiro de validação. As instruções Python abaixo continuam válidas em desenvolvimento.
+
 Rede para **micro:bit V2**, com uma Central, várias Estações e Pontes genéricas.
 O protocolo V1 usa grupo **42**, potência **7**, pacotes binários de até **19 bytes**,
 deduplicação e até **12 Pontes consecutivas**.
@@ -27,9 +39,9 @@ sem pedir destino nem deixar um HEX permanente no computador. Os temporários da
 operação são limpos após sucesso ou falha; caches e arquivos permanentes são preservados.
 
 O configurador preserva os fontes e a v0.0.3.1: os três firmwares padrão gerados
-são idênticos aos atuais. Não requer `.env` nem token. Ainda não é um `.exe`
-standalone; Node/PXT e seus pacotes precisam estar preparados. As opções manuais
-abaixo continuam disponíveis.
+são idênticos aos atuais. Não requer `.env` nem token. No fluxo Python de
+desenvolvimento, Node/PXT precisam estar preparados; a distribuição Windows
+v0.0.4.1 já os inclui. As opções manuais abaixo continuam disponíveis.
 
 O [relatório de auditoria](AUDITORIA.md) contém diagnóstico, inventário, formato de
 pacotes, justificativas, limitações, testes e checklist de validação física.

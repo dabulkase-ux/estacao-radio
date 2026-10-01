@@ -1,5 +1,10 @@
 # Configurador de firmware — v0.0.4
 
+**Distribuição Windows candidata v0.0.4.1:** veja [DISTRIBUICAO_WINDOWS.md](DISTRIBUICAO_WINDOWS.md).
+Ela inclui EXE, Python/Tk e Node/PXT privados; não exige preparação no computador
+do usuário final. As instruções de instalação Python/Node e a seção de futuro
+standalone abaixo documentam o fluxo de desenvolvimento/origem da v0.0.4.
+
 A ferramenta gera programas MakeCode oficiais para micro:bit V2, sem editar os
 fontes principais. Não é um atualizador do DAPLink/bootloader. O checkpoint
 v0.0.3.1, sua telemetria e peak-hold permanecem intactos.

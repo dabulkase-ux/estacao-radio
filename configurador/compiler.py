@@ -2,14 +2,16 @@
 import json
 import re
 import shutil
+import os
 import subprocess
 from pathlib import Path
+from .resources import resource_root, node_runtime
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = resource_root()
 
 
 def compile_project(project: Path, source_only=False):
-    node = shutil.which('node')
+    node = node_runtime()
     if not node:
         raise RuntimeError('Node.js não encontrado. Consulte CONFIGURADOR.md (preparação).')
     modules = ROOT / '.makecode-check/node_modules'
@@ -20,11 +22,18 @@ def compile_project(project: Path, source_only=False):
             raise RuntimeError('Compilador não instalado. Execute a preparação de CONFIGURADOR.md.') from None
         if actual != version:
             raise RuntimeError(f'{name}: esperado {version}, encontrado {actual}.')
-    command = [node, str(ROOT / 'tools/compilar_configurado.js'), str(project)]
+    command = [node, '--no-global-search-paths', '--require', str(ROOT / 'tools/offline_guard.js'),
+               str(ROOT / 'tools/compilar_configurado.js'), str(project)]
     if source_only:
         command.append('--source-only')
     try:
-        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True,
+        profile = project / 'profile'
+        profile.mkdir(exist_ok=True)
+        # Ambiente privado: não usa caches/configuração PXT ou opções Node do usuário.
+        env = {key: os.environ[key] for key in ('SystemRoot', 'WINDIR') if key in os.environ}
+        env.update(USERPROFILE=str(profile), TEMP=str(project), TMP=str(project),
+                   PATH=str(Path(node).parent), APPDATA=str(profile), LOCALAPPDATA=str(profile))
+        result = subprocess.run(command, cwd=project, env=env, capture_output=True, text=True,
                                 encoding='utf-8', errors='replace', timeout=300,
                                 creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     except subprocess.TimeoutExpired:
